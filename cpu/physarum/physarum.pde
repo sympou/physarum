@@ -3,8 +3,8 @@ float globalForesee = 1;
 float globalAngleLerp = 0.2;
 float globalSpeed = 0.3;
 
-int xS = 100;
-int yS = 100;
+int xS = 150;
+int yS = 150;
 
 Spot[][] spots = new Spot[xS][yS];
 ArrayList<Spot> spotsArray = new ArrayList<Spot>();
@@ -13,9 +13,13 @@ PVector spotSize;
 
 ArrayList<Particle> particles = new ArrayList<Particle>();
 
+PImage img;
+
 void setup() {
   size(700, 700);
   spotSize = new PVector((float)width/xS, (float)height/yS);
+  img=loadImage("img.jpg");
+  img.resize(xS, yS);
   for (int x = 0; x<xS; x++) {
     for (int y = 0; y<yS; y++) {
       Spot thisSpot = new Spot(x, y);
@@ -44,6 +48,10 @@ void draw() {
   // auto-randomize
   if (frameCount%50==0) randomizeParameters();
   // update
+  for (Spot spot : spotsArray) { 
+    // spot.pheromonalUpdate +=  constrain(2.0 - PVector.dist(new PVector(spot.x, spot.y), new PVector(xS/2, yS/2))/20, -1.0, 1.0)*0.05f*sin((float)frameCount/300);
+    // spot.pheromonalUpdate += (0xFF-brightness(img.get(spot.x,spot.y)))*0.005f/0x100;
+  }
   for (Spot spot : spotsArray) spot.spread();
   for (Spot spot : spotsArray) spot.spreadUpdate();
   for (Spot spot : spotsArray) spot.decay();
@@ -123,7 +131,9 @@ class Particle {
     position.x=(position.x+xS)%xS;
     position.y=(position.y+yS)%yS;
     // deposit
-    spots[round(position.x)%xS][round(position.y)%yS].pheromonal += 0.05;
+    float quantity = 0.05f;
+    // quantity += (brightness(img.get(floor(position.x), floor(position.y))))*0.5f/0x100;
+    spots[round(position.x)%xS][round(position.y)%yS].pheromonal += quantity;
   }  
   void draw() {
     noStroke();
@@ -137,7 +147,7 @@ void mousePressed() {
 }
 
 void randomizeParameters() {
-  globalForesee = random(0, 5);
-  globalAngleLerp = random(0, HALF_PI);
-  globalSpeed = random(0.2, 1.2);
+  globalForesee = random(random(random(0, 100)));
+  globalAngleLerp = random(random(0, HALF_PI));
+  globalSpeed = random(0.2, 2.0);
 }
